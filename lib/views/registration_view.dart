@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:note_app/constants/routes.dart';
+import 'package:note_app/services/registration.dart';
 
 class RegistrationView extends StatefulWidget {
   const RegistrationView({super.key});
@@ -52,14 +53,47 @@ class _RegistrationViewState extends State<RegistrationView> {
             ),
           ),
           TextButton(
-            onPressed: () {
-              print(_username.text);
-              print(_password.text);
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                    loginRoute, (route) => false);
+            onPressed: () async {
+              if (await registration(_username.text, _password.text)) {
+                if (context.mounted) {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      loginRoute, (route) => false);
+                  showDialog(
+                    context: context, 
+                    builder: (BuildContext context) => AlertDialog(
+                      title: const Text("Notification"),
+                      content: const Text("User added."),
+                      actions:<Widget> [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, 'OK'),
+                          child: const Text('OK'),)
+                      ],
+                    )
+                  );
+                }
+              } else {
+                if (context.mounted) {
+                  showDialog(
+                    context: context, 
+                    builder: (BuildContext context) => AlertDialog(
+                      title: const Text('Notification'),
+                      content: const Text('Username is already in use'),
+                      actions:<Widget> [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, 'OK'),
+                          child: const Text('OK'),)
+                      ],
+                    )
+                  );
+                }
+              }
             },
             child: const Text('Register'),
-          )
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pushNamedAndRemoveUntil(
+              loginRoute, (route) => false),
+              child: const Text('Back'))
         ],
       ),
     );

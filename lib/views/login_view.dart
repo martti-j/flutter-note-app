@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:note_app/constants/routes.dart';
+import 'package:note_app/services/login.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -60,11 +61,28 @@ class _LoginViewState extends State<LoginView> {
                 hintText: 'Please enter your password here'),
           ),
           TextButton(
-            onPressed: () {
-              print(_username.text);
-              print(_password.text);
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                    notesRoute, (route) => false);
+            onPressed: () async {
+              if (await login(_username.text, _password.text)) {
+                if (context.mounted) {
+                  Navigator.of(context).pushNamedAndRemoveUntil(
+                      notesRoute, (route) => false);
+                }
+              } else {
+                if (context.mounted) {
+                  showDialog(
+                    context: context, 
+                    builder: (BuildContext context) => AlertDialog(
+                      title: const Text('Notification'),
+                      content: const Text('You have given the wrong username or password.'),
+                      actions:<Widget> [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, 'OK'),
+                          child: const Text('OK'),)
+                      ],
+                    )
+                  );
+                }
+              }
             },
             child: const Text('Login'),
           ),
