@@ -62,11 +62,10 @@ class _LoginViewState extends State<LoginView> {
           ),
           TextButton(
             onPressed: () async {
+              final navigator = Navigator.of(context);
               if (await login(_username.text, _password.text)) {
-                if (context.mounted) {
-                  Navigator.of(context).pushNamedAndRemoveUntil(
+                  navigator.pushNamedAndRemoveUntil(
                       notesRoute, (route) => false);
-                }
               } else {
                 if (context.mounted) {
                   showDialog(
