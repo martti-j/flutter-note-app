@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:note_app/views/notes_view.dart';
+import 'package:note_app/services/notes.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class NewNoteView extends StatefulWidget {
   const NewNoteView({super.key});
@@ -8,6 +11,17 @@ class NewNoteView extends StatefulWidget {
 }
 
 class _NewNoteViewState extends State<NewNoteView> {
+  final NotesView noteview = const NotesView();
+
+  Future<String> _getUsername() async {
+    const storage = FlutterSecureStorage();
+    String? value = await storage.read(key: 'username');
+    if (value == null) {
+      return 'null';
+    }
+    return value;
+  }
+
   late final TextEditingController _tittle;
   late final TextEditingController _content;
 
@@ -43,8 +57,12 @@ class _NewNoteViewState extends State<NewNoteView> {
             decoration: const InputDecoration(hintText: 'Content...'),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
+            onPressed: () async {
+              final navigator = Navigator.pop(context);
+              String username = await _getUsername();
+              addNote(_tittle.text, _content.text, username);
+              //noteview.updateNoteList();
+              navigator;
             },
             child: const Text('Add'),
           ),

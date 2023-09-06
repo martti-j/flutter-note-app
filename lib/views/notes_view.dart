@@ -3,7 +3,7 @@ import 'package:note_app/constants/routes.dart';
 import 'package:note_app/services/login.dart';
 import 'package:note_app/services/notes.dart';
 
-enum MenuActions {logout}
+enum MenuActions { logout }
 
 class NotesView extends StatefulWidget {
   const NotesView({super.key});
@@ -13,6 +13,15 @@ class NotesView extends StatefulWidget {
 }
 
 class _NotesViewState extends State<NotesView> {
+
+  void updateNoteList() {
+    setState(() {
+      notes = getNotes();
+    });
+  }
+
+  Future<List> notes = getNotes();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,14 +32,13 @@ class _NotesViewState extends State<NotesView> {
             onSelected: (value) async {
               switch (value) {
                 case MenuActions.logout:
-                final navigator = Navigator.of(context);
-                final shouldLogout = await showLogOutDialog(context);
-                if (shouldLogout) {
-                  logout();
-                  navigator.pushNamedAndRemoveUntil(
-                    loginRoute,
-                    (route) => false);
-                }
+                  final navigator = Navigator.of(context);
+                  final shouldLogout = await showLogOutDialog(context);
+                  if (shouldLogout) {
+                    logout();
+                    navigator.pushNamedAndRemoveUntil(
+                        loginRoute, (route) => false);
+                  }
               }
             },
             itemBuilder: (context) {
@@ -50,16 +58,13 @@ class _NotesViewState extends State<NotesView> {
         children: [
           TextButton(
             onPressed: () {
-              Navigator.pushNamed(
-                context,
-                newNoteRoute
-              );
+              Navigator.pushNamed(context, newNoteRoute);
             },
             child: const Text('New note'),
           ),
           Expanded(
             child: FutureBuilder(
-              future: getNotes(),
+              future: notes,
               builder: (context, AsyncSnapshot snapshot) {
                 if (!snapshot.hasData) {
                   return const Center(child: CircularProgressIndicator());
@@ -69,33 +74,38 @@ class _NotesViewState extends State<NotesView> {
                     itemBuilder: (context, index) {
                       switch (snapshot.connectionState) {
                         case ConnectionState.done:
+                          print(snapshot.data);
                           return Container(
                             margin: const EdgeInsets.all(10.0),
                             height: MediaQuery.of(context).size.height / 3.5,
                             padding: const EdgeInsets.all(3.0),
                             decoration: BoxDecoration(
-                              border: Border.all(color: Colors.black)
-                            ),
-                            child:  Column(
+                                border: Border.all(color: Colors.black)),
+                            child: Column(
                               children: [
-                                Text(
-                                  snapshot.data[index]['Tittle'],
-                                  style: const TextStyle(fontSize: 24),  
-                                ),
                                 Padding(
-                                  padding: const EdgeInsets.all(12.0),
+                                  padding: const EdgeInsets.all(15.0),
                                   child: Text(
-                                    snapshot.data[index]['Content'],
-                                    style: const TextStyle(fontSize: 14),  
+                                    snapshot.data[index]['Tittle'],
+                                    style: const TextStyle(fontSize: 24),
+                                  ),
+                                ),
+                                Expanded(
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(12.0),
+                                    child: Text(
+                                      snapshot.data[index]['Content'],
+                                      style: const TextStyle(fontSize: 14),
+                                    ),
                                   ),
                                 ),
                                 Padding(
-                                  padding: const EdgeInsets.all(30.0),
+                                  padding: const EdgeInsets.all(10.0),
                                   child: Text(
                                     "By ${snapshot.data[index]['Writer']}",
                                     style: const TextStyle(fontSize: 14),
                                   ),
-                                )
+                                ),
                               ],
                             ),
                           );
@@ -105,11 +115,11 @@ class _NotesViewState extends State<NotesView> {
                     },
                   );
                 }
-              }
+              },
             ),
           )
         ],
-      )
+      ),
     );
   }
 }
